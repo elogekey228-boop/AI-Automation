@@ -1,16 +1,13 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Automation Engine</title>
     <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
-
 <div class="app">
-
     <!-- SIDEBAR -->
     <aside class="sidebar">
         <div class="brand">
@@ -20,29 +17,23 @@
                 <span>ENGINE v2.0</span>
             </div>
         </div>
-
         <nav>
             <button class="nav-item active" data-view="dashboard">
                 <span>⌂</span> Dashboard
             </button>
-
             <button class="nav-item" data-view="leads">
                 <span>◉</span> Leads
             </button>
-
             <button class="nav-item" data-view="pipeline">
                 <span>▦</span> Pipeline
             </button>
-
             <button class="nav-item" data-view="priorities">
-                <span>!</span> Priorités
+                <span>!</span> Priorities
             </button>
-
             <button class="nav-item" data-view="followups">
                 <span>↻</span> Follow-ups
             </button>
         </nav>
-
         <div class="sidebar-bottom">
             <div class="api-status">
                 <span class="status-dot"></span>
@@ -53,231 +44,152 @@
             </div>
         </div>
     </aside>
-
     <!-- MAIN -->
     <main class="main">
-
         <header class="topbar">
             <div>
                 <p class="eyebrow">AI SALES AUTOMATION</p>
                 <h2 id="page-title">Dashboard</h2>
             </div>
-
             <div class="topbar-actions">
                 <button class="refresh-btn" onclick="refreshCurrentView()">
-                    ↻ Actualiser
+                    ↻ Refresh
                 </button>
                 <div class="avatar">EK</div>
             </div>
         </header>
-
         <!-- DASHBOARD -->
         <section id="dashboard-view" class="view active">
-
             <div class="hero">
                 <div>
-                    <p class="hero-label">PERFORMANCE COMMERCIALE</p>
-                    <h3>Transforme tes prospects<br>en opportunités.</h3>
+                    <p class="hero-label">SALES PERFORMANCE</p>
+                    <h3>Turn your prospects<br>into opportunities.</h3>
                     <p class="hero-description">
-                        Ton moteur IA analyse, classe et priorise automatiquement
-                        tes leads pour maximiser les conversions.
+                        Your AI engine automatically analyzes, scores and prioritizes leads to maximize conversions.
                     </p>
                 </div>
-
                 <div class="hero-badge">
                     <span class="pulse"></span>
                     AUTOMATION ACTIVE
                 </div>
             </div>
-
             <div class="stats-grid">
-
                 <div class="stat-card">
                     <span class="stat-label">TOTAL LEADS</span>
                     <strong id="total-leads">—</strong>
-                    <small>Prospects enregistrés</small>
+                    <small>Prospects registered</small>
                 </div>
-
                 <div class="stat-card hot">
                     <span class="stat-label">HOT LEADS</span>
                     <strong id="hot-leads">—</strong>
-                    <small>À contacter immédiatement</small>
+                    <small>Contact immediately</small>
                 </div>
-
                 <div class="stat-card warm">
                     <span class="stat-label">WARM LEADS</span>
                     <strong id="warm-leads">—</strong>
-                    <small>Potentiel intermédiaire</small>
+                    <small>Medium potential</small>
                 </div>
-
                 <div class="stat-card revenue">
-                    <span class="stat-label">REVENU POTENTIEL</span>
+                    <span class="stat-label">POTENTIAL REVENUE</span>
                     <strong id="potential-revenue">—</strong>
-                    <small>Valeur estimée</small>
+                    <small>Estimated value</small>
                 </div>
-
             </div>
-
             <div class="dashboard-grid">
-
                 <div class="panel">
                     <div class="panel-header">
                         <div>
                             <p class="eyebrow">PIPELINE</p>
-                            <h3>Vue commerciale</h3>
+                            <h3>Sales View</h3>
                         </div>
                     </div>
-
                     <div id="pipeline-summary" class="pipeline-summary">
-                        Chargement...
+                        Loading...
                     </div>
                 </div>
-
                 <div class="panel">
                     <div class="panel-header">
                         <div>
                             <p class="eyebrow">URGENT</p>
-                            <h3>Priorités</h3>
+                            <h3>Priorities</h3>
                         </div>
-
                         <button onclick="showView('priorities')" class="text-btn">
-                            Voir tout →
+                            View all →
                         </button>
                     </div>
-
                     <div id="priority-list">
-                        Chargement...
+                        Loading...
                     </div>
                 </div>
-
             </div>
-
         </section>
-
         <!-- LEADS -->
         <section id="leads-view" class="view">
-
             <div class="section-toolbar">
                 <div>
                     <p class="eyebrow">CRM</p>
-                    <h3>Tous les leads</h3>
+                    <h3>All Leads</h3>
                 </div>
-
-                <input
-                    id="search-input"
-                    type="text"
-                    placeholder="Rechercher un lead..."
-                    oninput="searchLeads()"
-                >
+                <input id="search-input" type="text" placeholder="Search leads..." oninput="searchLeads()">
             </div>
-
             <div class="table-panel">
                 <table>
                     <thead>
                         <tr>
                             <th>Lead</th>
-                            <th>Entreprise</th>
+                            <th>Company</th>
                             <th>Score</th>
-                            <th>Statut</th>
+                            <th>Status</th>
                             <th>Budget</th>
-                            <th>Urgence</th>
+                            <th>Urgency</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
-
                     <tbody id="leads-table">
-                        <tr>
-                            <td colspan="6">Chargement...</td>
-                        </tr>
+                        <tr><td colspan="7">Loading...</td></tr>
                     </tbody>
                 </table>
             </div>
-
         </section>
-
         <!-- PIPELINE -->
         <section id="pipeline-view" class="view">
-
             <div class="section-toolbar">
                 <div>
                     <p class="eyebrow">CRM</p>
-                    <h3>Pipeline commercial</h3>
+                    <h3>Sales Pipeline</h3>
                 </div>
             </div>
-
             <div id="pipeline-board" class="pipeline-board">
-                Chargement...
+                Loading...
             </div>
-
         </section>
-
         <!-- PRIORITIES -->
         <section id="priorities-view" class="view">
-
             <div class="section-toolbar">
                 <div>
-                    <p class="eyebrow">IA SALES</p>
-                    <h3>Leads prioritaires</h3>
+                    <p class="eyebrow">AI SALES</p>
+                    <h3>Priority Leads</h3>
                 </div>
             </div>
-
             <div id="priorities-list" class="cards-list">
-                Chargement...
+                Loading...
             </div>
-
         </section>
-
         <!-- FOLLOW UPS -->
         <section id="followups-view" class="view">
-
             <div class="section-toolbar">
                 <div>
                     <p class="eyebrow">AUTOMATION</p>
                     <h3>Follow-ups</h3>
                 </div>
             </div>
-
             <div id="followups-list" class="cards-list">
-                Chargement...
+                Loading...
             </div>
-
         </section>
-
     </main>
 </div>
-
-<script src="app2.js"></script>
-
-<!-- LEAD DETAILS MODAL -->
-<div id="details-modal" class="modal">
-    <div class="modal-card large">
-        <div class="modal-header">
-            <div>
-                <p class="eyebrow">LEAD DETAILS</p>
-                <h3 id="details-title">Lead</h3>
-            </div>
-            <button class="modal-close" onclick="closeDetailsModal()">×</button>
-        </div>
-        <div id="lead-details"></div>
-    </div>
-</div>
-<!-- CONFIRMATION MODAL (Suppression) -->
-<div id="confirm-modal" class="modal">
-    <div class="modal-card" style="max-width:450px;">
-        <div class="modal-header">
-            <div>
-                <p class="eyebrow" style="color:#ff5f6d;">⚠️ ATTENTION</p>
-                <h3 id="confirm-title" style="font-size:18px;">Supprimer ce lead ?</h3>
-            </div>
-        </div>
-        <div style="padding:0 0 20px 0; color:#8994a6;">
-            <p id="confirm-message" style="margin:0;">Cette action est irréversible.</p>
-        </div>
-        <div class="modal-actions" style="border-top:1px solid var(--border);padding-top:16px;">
-            <button class="secondary-btn" id="confirm-cancel-btn">Annuler</button>
-            <button class="primary-btn" id="confirm-ok-btn" style="background:#ff5f6d;">Supprimer</button>
-        </div>
-    </div>
-</div>
+<script src="app.js"></script>
 <div id="toast-container"></div>
 </body>
 </html>

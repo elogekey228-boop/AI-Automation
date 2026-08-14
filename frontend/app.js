@@ -25,7 +25,7 @@ function escapeHTML(value) {
 
 function formatMoney(value) {
     const number = Number(value || 0);
-    return new Intl.NumberFormat("fr-FR", {
+    return new Intl.NumberFormat("en-US", {
         style: "currency",
         currency: "USD",
         maximumFractionDigits: 0,
@@ -33,15 +33,14 @@ function formatMoney(value) {
 }
 
 function formatNumber(value) {
-    return new Intl.NumberFormat("fr-FR").format(Number(value || 0));
+    return new Intl.NumberFormat("en-US").format(Number(value || 0));
 }
 
 function formatStatus(status) {
     if (!status) return "-";
     return String(status)
         .replaceAll("_", " ")
-        .toLowerCase()
-        .replace(/\b\w/g, (char) => char.toUpperCase());
+        .toUpperCase();
 }
 
 function classificationFromScore(score) {
@@ -92,7 +91,7 @@ async function api(endpoint, options = {}) {
         });
         const data = await response.json();
         if (!response.ok) {
-            throw new Error(data.detail || data.message || "Erreur API");
+            throw new Error(data.detail || data.message || "API Error");
         }
         return data;
     } catch (error) {
@@ -135,7 +134,7 @@ function showView(view) {
         dashboard: "Dashboard",
         leads: "Leads",
         pipeline: "Pipeline",
-        priorities: "Priorités",
+        priorities: "Priorities",
         followups: "Follow-ups",
     };
     const titleEl = document.getElementById("page-title");
@@ -216,7 +215,7 @@ async function loadPipelineSummary() {
 
         const entries = Object.entries(pipeline);
         if (!entries.length) {
-            container.innerHTML = "<p>Aucune donnée pipeline.</p>";
+            container.innerHTML = "<p>No pipeline data.</p>";
             return;
         }
 
@@ -245,7 +244,7 @@ async function loadPipelineSummary() {
             })
             .join("");
     } catch (error) {
-        container.innerHTML = "<p style='color:#8994a6'>Pipeline indisponible.</p>";
+        container.innerHTML = "<p style='color:#8994a6'>Pipeline unavailable.</p>";
     }
 }
 
@@ -259,7 +258,7 @@ async function loadPriorityPreview() {
         const data = await api("/leads/priorities");
         const priorities = data.priorities || [];
         if (!priorities.length) {
-            container.innerHTML = "<p style='padding:20px;color:#8994a6'>Aucune priorité.</p>";
+            container.innerHTML = "<p style='padding:20px;color:#8994a6'>No priorities.</p>";
             return;
         }
         container.innerHTML = priorities
@@ -276,7 +275,7 @@ async function loadPriorityPreview() {
             `)
             .join("");
     } catch (error) {
-        container.innerHTML = "<p style='padding:20px;color:#8994a6'>Impossible de charger les priorités.</p>";
+        container.innerHTML = "<p style='padding:20px;color:#8994a6'>Unable to load priorities.</p>";
     }
 }
 
@@ -286,7 +285,7 @@ async function loadPriorityPreview() {
 async function loadLeads() {
     const table = document.getElementById("leads-table");
     if (!table) return;
-    table.innerHTML = `<tr><td colspan="7">Chargement...</td></tr>`;
+    table.innerHTML = `<tr><td colspan="7">Loading...</td></tr>`;
 
     try {
         const status = document.getElementById("status-filter")?.value || "";
@@ -300,15 +299,18 @@ async function loadLeads() {
         allLeads = data.leads || [];
         renderLeads(allLeads);
     } catch (error) {
-        table.innerHTML = `<tr><td colspan="7">Erreur: ${escapeHTML(error.message)}</td></tr>`;
+        table.innerHTML = `<tr><td colspan="7">Error: ${escapeHTML(error.message)}</td></tr>`;
     }
 }
 
 function renderLeads(leads) {
     const table = document.getElementById("leads-table");
     if (!table) return;
+    const countEl = document.getElementById("leads-count");
+    if (countEl) countEl.textContent = `(${leads.length} total)`;
+
     if (!leads.length) {
-        table.innerHTML = `<tr><td colspan="7">Aucun lead trouvé.</td></tr>`;
+        table.innerHTML = `<tr><td colspan="7">No leads found.</td></tr>`;
         return;
     }
 
@@ -316,17 +318,17 @@ function renderLeads(leads) {
         .map((lead) => `
             <tr>
                 <td>
-                    <div class="lead-name">${escapeHTML(lead.name || "Sans nom")}</div>
+                    <div class="lead-name">${escapeHTML(lead.name || "No name")}</div>
                     <div class="lead-email">${escapeHTML(lead.email || "")}</div>
                 </td>
                 <td>${escapeHTML(lead.company || "-")}</td>
                 <td><strong>${lead.score ?? 0}</strong></td>
                 <td>${statusBadge(lead.status)}</td>
                 <td>${formatMoney(lead.budget ?? 0)}</td>
-                <td>${escapeHTML(formatStatus(lead.urgency || "normal"))}</td>
+                <td>${escapeHTML(lead.urgency || "normal")}</td>
                 <td>
-                    <button class="text-btn" onclick="openLeadDetails(${lead.id})">Voir</button>
-                    <button onclick="deleteLead(${lead.id})" style="color:#ff5f6d;border:none;background:none;cursor:pointer;margin-left:8px;font-size:14px;" title="Supprimer">✕</button>
+                    <button class="text-btn" onclick="openLeadDetails(${lead.id})">View</button>
+                    <button onclick="deleteLead(${lead.id})" style="color:#ff5f6d;border:none;background:none;cursor:pointer;margin-left:8px;font-size:14px;" title="Delete">✕</button>
                 </td>
             </tr>
         `)
@@ -367,18 +369,18 @@ async function searchLeads() {
 async function loadHotLeads() {
     const container = document.getElementById("hot-table");
     if (!container) return;
-    container.innerHTML = "Chargement...";
+    container.innerHTML = "Loading...";
     try {
         const data = await api("/leads/hot");
         if (!data.leads.length) {
-            container.innerHTML = "<div class='empty'>Aucun Hot Lead.</div>";
+            container.innerHTML = "<div class='empty'>No Hot Leads.</div>";
             return;
         }
         container.innerHTML = `
             <div class="table-wrap">
                 <table class="data-table">
                     <thead>
-                        <tr><th>Lead</th><th>Score</th><th>Budget</th><th>Urgence</th><th>Status</th></tr>
+                        <tr><th>Lead</th><th>Score</th><th>Budget</th><th>Urgency</th><th>Status</th></tr>
                     </thead>
                     <tbody>
                         ${data.leads.map((lead) => `
@@ -408,13 +410,13 @@ async function loadHotLeads() {
 async function loadPipeline() {
     const board = document.getElementById("pipeline-board");
     if (!board) return;
-    board.innerHTML = "Chargement...";
+    board.innerHTML = "Loading...";
     try {
         const data = await api("/pipeline");
         const pipeline = data.pipeline || {};
         renderPipeline(pipeline);
     } catch (error) {
-        board.innerHTML = "<p style='color:#ff7b86'>Impossible de charger le pipeline.</p>";
+        board.innerHTML = "<p style='color:#ff7b86'>Unable to load pipeline.</p>";
     }
 }
 
@@ -434,12 +436,12 @@ function renderPipeline(pipeline) {
                     </div>
                     ${items.length ? items.map((lead) => `
                         <div class="pipeline-card" onclick="openLeadDetails(${lead.id})">
-                            <strong>${escapeHTML(lead.name || "Sans nom")}</strong>
+                            <strong>${escapeHTML(lead.name || "No name")}</strong>
                             <small>${escapeHTML(lead.company || "")}</small>
                             <small>Score: ${lead.score ?? 0}</small>
                             <small>Budget: ${formatMoney(lead.budget ?? 0)}</small>
                         </div>
-                    `).join("") : `<div style="padding:20px;color:#8994a6;font-size:10px;">Aucun lead</div>`}
+                    `).join("") : `<div style="padding:20px;color:#8994a6;font-size:10px;">No leads</div>`}
                 </div>
             `;
         })
@@ -452,12 +454,12 @@ function renderPipeline(pipeline) {
 async function loadPriorities() {
     const container = document.getElementById("priorities-list");
     if (!container) return;
-    container.innerHTML = "Chargement...";
+    container.innerHTML = "Loading...";
     try {
         const data = await api("/leads/priorities");
         const priorities = data.priorities || [];
         if (!priorities.length) {
-            container.innerHTML = "<p>Aucune priorité.</p>";
+            container.innerHTML = "<p>No priorities.</p>";
             return;
         }
         container.innerHTML = priorities
@@ -466,7 +468,7 @@ async function loadPriorities() {
                     <div class="card-main">
                         <strong>${escapeHTML(item.name)}</strong>
                         <p>${escapeHTML(item.company || "")} · ${escapeHTML(item.email || "")}</p>
-                        <p>Urgence : ${escapeHTML(formatStatus(item.urgency))}</p>
+                        <p>Urgency: ${escapeHTML(item.urgency)}</p>
                     </div>
                     <div class="card-meta">
                         <div class="score-large">${item.score}</div>
@@ -479,7 +481,7 @@ async function loadPriorities() {
             `)
             .join("");
     } catch (error) {
-        container.innerHTML = `<p>Erreur: ${escapeHTML(error.message)}</p>`;
+        container.innerHTML = `<p>Error: ${escapeHTML(error.message)}</p>`;
     }
 }
 
@@ -489,12 +491,12 @@ async function loadPriorities() {
 async function loadFollowUps() {
     const container = document.getElementById("followups-list");
     if (!container) return;
-    container.innerHTML = "Chargement...";
+    container.innerHTML = "Loading...";
     try {
         const data = await api("/leads/follow-ups");
         const followups = data.follow_ups || [];
         if (!followups.length) {
-            container.innerHTML = "<p>Aucun follow-up.</p>";
+            container.innerHTML = "<p>No follow-ups.</p>";
             return;
         }
         container.innerHTML = followups
@@ -507,13 +509,13 @@ async function loadFollowUps() {
                     </div>
                     <div class="card-meta">
                         <div class="score-large">${item.score}</div>
-                        <div class="action">${item.due ? "À FAIRE" : "À VENIR"}</div>
+                        <div class="action">${item.due ? "DUE NOW" : "UPCOMING"}</div>
                     </div>
                 </div>
             `)
             .join("");
     } catch (error) {
-        container.innerHTML = `<p>Erreur: ${escapeHTML(error.message)}</p>`;
+        container.innerHTML = `<p>Error: ${escapeHTML(error.message)}</p>`;
     }
 }
 
@@ -549,7 +551,7 @@ async function createLead(event) {
     try {
         const data = await api("/leads", { method: "POST", body: JSON.stringify(payload) });
         closeLeadModal();
-        showToast(`Lead créé (#${data.lead_id})`);
+        showToast(`Lead created (#${data.lead_id})`);
         await loadView(currentView);
         if (currentView === "dashboard") await loadDashboard();
     } catch (error) {
@@ -567,8 +569,8 @@ async function openLeadDetails(leadId) {
     if (!modal || !container) return;
 
     modal.classList.add("show");
-    title.textContent = "Chargement...";
-    container.innerHTML = "<div class='loading'>Chargement du lead...</div>";
+    title.textContent = "Loading...";
+    container.innerHTML = "<div class='loading'>Loading lead...</div>";
 
     try {
         const data = await api(`/leads/${leadId}`);
@@ -577,20 +579,20 @@ async function openLeadDetails(leadId) {
 
         container.innerHTML = `
             <div class="detail-grid">
-                <div class="detail-item"><span>Nom</span><strong>${escapeHTML(lead.name)}</strong></div>
-                <div class="detail-item"><span>Entreprise</span><strong>${escapeHTML(lead.company)}</strong></div>
+                <div class="detail-item"><span>Name</span><strong>${escapeHTML(lead.name)}</strong></div>
+                <div class="detail-item"><span>Company</span><strong>${escapeHTML(lead.company)}</strong></div>
                 <div class="detail-item"><span>Email</span><strong>${escapeHTML(lead.email)}</strong></div>
                 <div class="detail-item"><span>Budget</span><strong>${formatMoney(lead.budget)}</strong></div>
-                <div class="detail-item"><span>Score IA</span><strong>${lead.score ?? 0}/100</strong></div>
+                <div class="detail-item"><span>AI Score</span><strong>${lead.score ?? 0}/100</strong></div>
                 <div class="detail-item"><span>Classification</span><strong>${badge(data.classification, data.classification.toLowerCase())}</strong></div>
-                <div class="detail-item"><span>Urgence</span><strong>${escapeHTML(lead.urgency)}</strong></div>
+                <div class="detail-item"><span>Urgency</span><strong>${escapeHTML(lead.urgency)}</strong></div>
                 <div class="detail-item"><span>Status</span><strong>${escapeHTML(lead.status)}</strong></div>
             </div>
-            <div class="detail-item" style="margin-top:14px"><span>Besoin</span><strong>${escapeHTML(lead.need)}</strong></div>
-            <div class="detail-message"><strong>Action recommandée</strong><p>${escapeHTML(data.action)}</p></div>
-            <div class="detail-message"><strong>Message commercial</strong><p>${escapeHTML(data.sales_message)}</p></div>
+            <div class="detail-item" style="margin-top:14px"><span>Need</span><strong>${escapeHTML(lead.need)}</strong></div>
+            <div class="detail-message"><strong>Recommended Action</strong><p>${escapeHTML(data.action)}</p></div>
+            <div class="detail-message"><strong>Generated Sales Message</strong><p>${escapeHTML(data.sales_message)}</p></div>
             <div class="detail-status">
-                <strong style="width:100%">Changer le statut</strong>
+                <strong style="width:100%">Change Status</strong>
                 ${["NEW","CONTACTED","REPLIED","QUALIFIED","MEETING_BOOKED","WON","LOST"].map((status) => `
                     <button class="${String(lead.status).toUpperCase() === status ? "primary-btn" : "secondary-btn"}" 
                             onclick="updateLeadStatus(${lead.id}, '${status}', true)">
@@ -631,29 +633,26 @@ async function updateLeadStatus(leadId, status, fromDetails = false) {
    DELETE LEAD
 ============================================================ */
 async function deleteLead(id) {
-    // Ouvre la modale personnalisée
     const modal = document.getElementById('confirm-modal');
     const title = document.getElementById('confirm-title');
     const message = document.getElementById('confirm-message');
     const okBtn = document.getElementById('confirm-ok-btn');
     const cancelBtn = document.getElementById('confirm-cancel-btn');
 
-    title.textContent = `Supprimer le lead #${id} ?`;
-    message.textContent = `"${document.querySelector(`tr td:first-child`)?.textContent || 'Lead'}" sera définitivement perdu.`;
+    title.textContent = `Delete lead #${id}?`;
+    message.textContent = `"${document.querySelector(`tr td:first-child`)?.textContent || 'Lead'}" will be permanently lost.`;
     modal.classList.add('show');
 
-    // Retire les anciens écouteurs pour éviter les doublons
     const newOk = okBtn.cloneNode(true);
     const newCancel = cancelBtn.cloneNode(true);
     okBtn.parentNode.replaceChild(newOk, okBtn);
     cancelBtn.parentNode.replaceChild(newCancel, cancelBtn);
 
-    // Bouton Supprimer
     newOk.addEventListener('click', async () => {
         modal.classList.remove('show');
         try {
             await api(`/leads/${id}`, { method: "DELETE" });
-            showToast(`Lead #${id} supprimé`);
+            showToast(`Lead #${id} deleted`);
             await loadView(currentView);
             if (currentView === "dashboard") await loadDashboard();
         } catch (error) {
@@ -661,12 +660,10 @@ async function deleteLead(id) {
         }
     });
 
-    // Bouton Annuler
     newCancel.addEventListener('click', () => {
         modal.classList.remove('show');
     });
 
-    // Clic en dehors de la modale
     modal.addEventListener('click', (e) => {
         if (e.target === modal) modal.classList.remove('show');
     });
@@ -695,7 +692,7 @@ function startAutoRefresh() {
         } catch (error) {
             console.error("Auto refresh error:", error);
         }
-    }, 30000); 
+    }, 30000);
 }
 
 /* ============================================================
@@ -705,5 +702,5 @@ async function refreshCurrentView() {
     await checkAPI();
     await loadView(currentView);
     if (currentView === "dashboard") await loadDashboard();
-    showToast("Données actualisées");
+    showToast("Data refreshed");
 }
